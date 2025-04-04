@@ -207,19 +207,92 @@ MIT
 ### 基本使用
 
 ```html
-<script>
-  // 使用全局变量 MCPUIUX
-  const { MCPProvider, useMCP, MCPStatus } = MCPUIUX;
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCP UIUX UMD 示例</title>
+  <!-- 引入 React 和 ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   
-  // 在你的 React 组件中使用
-  const App = () => {
-    return (
-      <MCPProvider>
-        {/* 你的应用内容 */}
-      </MCPProvider>
-    );
-  };
-</script>
+  <!-- 引入 Babel 用于 JSX 转换 -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- 引入 MCP UIUX 库 -->
+  <script src="https://unpkg.com/mcp-uiux@latest/dist/index.umd.min.js"></script>
+   
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { MCPProvider, useMCP, MCPStatus } = MCPUIUX;
+    
+    const AppContent = () => {
+      const [serverUrl, setServerUrl] = React.useState('http://localhost:8080');
+      const [resourcePath, setResourcePath] = React.useState('');
+      const {
+        connect,
+        loading,
+        error,
+        tools,
+        resources,
+        resourceTemplates,
+        prompts
+      } = useMCP();
+      
+      React.useEffect(() => {
+        connect(serverUrl, resourcePath);
+      }, [serverUrl, resourcePath]);
+      
+      return (
+        <div>
+          <h1>MCP UIUX UMD 示例</h1>
+          
+          <div style={{ marginBottom: '20px' }}>
+            <div>
+              <label>服务器地址：</label>
+              <input
+                type="text"
+                value={serverUrl}
+                onChange={(e) => setServerUrl(e.target.value)}
+                style={{ width: '300px', marginLeft: '10px' }}
+              />
+            </div>
+            <div style={{ marginTop: '10px' }}>
+              <label>资源路径过滤：</label>
+              <input
+                type="text"
+                value={resourcePath}
+                onChange={(e) => setResourcePath(e.target.value)}
+                style={{ width: '300px', marginLeft: '10px' }}
+              />
+            </div>
+          </div>
+          
+          {loading && <div>正在加载...</div>}
+          {error && <div style={{ color: 'red' }}>错误: {error}</div>}
+           
+          <MCPStatus serverUrl={serverUrl} />
+        </div>
+      );
+    };
+    
+    const App = () => {
+      return (
+        <MCPProvider>
+          <AppContent />
+        </MCPProvider>
+      );
+    };
+    
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html> 
 ```
 
 完整示例请参考 [umd-example.html](./example/umd-example.html)
