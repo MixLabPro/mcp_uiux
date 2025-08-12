@@ -1509,6 +1509,10 @@ var callOpenAIFunctionAndProcessToolCalls = function (systemPrompt, userContent,
                             var functionName = toolCall.function.name;
                             try {
                                 var json = toolCall.function.arguments.trim();
+                                // 添加调试信息
+                                console.log('原始JSON字符串:', json);
+                                console.log('JSON字符串长度:', json.length);
+                                console.log('JSON字符串前60个字符:', json.substring(0, 60));
                                 try {
                                     return {
                                         id: toolCall.id,
@@ -1517,8 +1521,27 @@ var callOpenAIFunctionAndProcessToolCalls = function (systemPrompt, userContent,
                                     };
                                 }
                                 catch (parseError) {
-                                    var repaired = jsonrepair(json);
+                                    console.log('JSON解析失败，尝试修复:', parseError);
+                                    // 在调用jsonrepair之前进行预处理
+                                    var cleanedJson = json;
+                                    // 移除可能的非JSON字符
+                                    cleanedJson = cleanedJson.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+                                    // 如果字符串以非JSON字符开头，尝试找到第一个有效的JSON开始位置
+                                    var jsonStartMatch = cleanedJson.match(/[\{\[]/);
+                                    if (jsonStartMatch) {
+                                        cleanedJson = cleanedJson.substring(jsonStartMatch.index);
+                                    }
+                                    // 如果字符串以非JSON字符结尾，尝试找到最后一个有效的JSON结束位置
+                                    var jsonEndMatch = cleanedJson.match(/[\}\]]/);
+                                    if (jsonEndMatch) {
+                                        var lastMatch = cleanedJson.lastIndexOf(jsonEndMatch[0]);
+                                        if (lastMatch !== -1) {
+                                            cleanedJson = cleanedJson.substring(0, lastMatch + 1);
+                                        }
+                                    }
+                                    console.log('清理后的JSON字符串:', cleanedJson);
                                     try {
+                                        var repaired = jsonrepair(cleanedJson);
                                         return {
                                             id: toolCall.id,
                                             name: functionName,
@@ -1527,6 +1550,8 @@ var callOpenAIFunctionAndProcessToolCalls = function (systemPrompt, userContent,
                                     }
                                     catch (repairError) {
                                         console.error('无法修复工具调用参数JSON:', repairError);
+                                        console.error('原始字符串:', json);
+                                        console.error('清理后字符串:', cleanedJson);
                                         return null;
                                     }
                                 }

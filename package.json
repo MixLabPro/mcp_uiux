@@ -1,6 +1,6 @@
 {
     "name": "mcp-uiux",
-    "version": "1.9.11",
+    "version": "1.9.12",
     "description": "MCP client and uiux",
     "main": "dist/index.js",
     "module": "dist/index.esm.js",
