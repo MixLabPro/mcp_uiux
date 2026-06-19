@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/mixlabpro-mcp-uiux-badge.png)](https://mseep.ai/app/mixlabpro-mcp-uiux)
+
 # MCP UIUX
 
 Use and manage MCP with elegance and precision.
